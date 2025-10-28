@@ -12,9 +12,10 @@ public class DistractedTimelines : MonoBehaviour
     public Button callNow;
     public Button ignore;
     public GameObject options;
-    public GameObject title;
+    public GameObject title, bg;
     public Button exit1;
     public Button exit2;
+    public Button retry1, retry2;
     public Button Play;
     // public GameObject dots;
     public GameObject textBackObj;
@@ -48,6 +49,8 @@ public class DistractedTimelines : MonoBehaviour
         approachTimeline.stopped += OnApproachFinished;
         stopTimeline.stopped += OnStopFinished;
         crashTimeline.stopped += onCrashFinished;
+        retry1.onClick.AddListener(onClickRetry);
+        retry2.onClick.AddListener(onClickRetry);
         Time.timeScale = 0f; // Pause the game initially
     }
     public void onClickPlay()
@@ -63,6 +66,7 @@ public class DistractedTimelines : MonoBehaviour
         Canvas1.SetActive(true);
         options.SetActive(true);
         title.SetActive(true);
+        bg.SetActive(true);
         textBack.onClick.AddListener(() => onClickWrong(textBackObj));
         callNow.onClick.AddListener(() => onClickWrong(callNowObj));
         ignore.onClick.AddListener(onClickCorrect);
@@ -109,6 +113,7 @@ public class DistractedTimelines : MonoBehaviour
     {
         options.SetActive(false);
         title.SetActive(false);
+        bg.SetActive(false);
         StartCoroutine(HandleWrongChoice(enabledObject));
     }
     void triggerShake()
@@ -193,5 +198,21 @@ public class DistractedTimelines : MonoBehaviour
         approachTimeline.stopped -= OnApproachFinished;
         stopTimeline.stopped -= OnStopFinished;
         crashTimeline.stopped -= onCrashFinished;
+    }
+    public void onClickRetry()
+    {
+        crack.SetActive(false);
+        Canvas1.SetActive(true);
+        Canvas2.SetActive(false);
+        Canvas3.SetActive(false);
+        
+        TrafficManager.GetComponent<TrafficManager>().ResetToStateAt10s();
+
+        // Move the approach timeline to its *end state*
+        approachTimeline.time = approachTimeline.duration;
+        approachTimeline.Evaluate();
+
+        // Call the same function that runs when it finishes
+        OnApproachFinished(approachTimeline);
     }
 }

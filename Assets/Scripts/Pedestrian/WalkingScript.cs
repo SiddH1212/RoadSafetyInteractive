@@ -8,12 +8,17 @@ public class PedestrianController : MonoBehaviour
 
     private bool shouldWalk = false;
     private bool hasBeenHit = false;
+    private Vector3 startPosition;
+    private Quaternion startRotation;
+    // public AudioSource crashSound;
 
     void Start()
     {
         if (animator == null) animator = GetComponent<Animator>();
         if (rb == null) rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
+        startPosition = transform.position;
+        startRotation = transform.rotation;
     }
 
     void Update()
@@ -46,7 +51,7 @@ public class PedestrianController : MonoBehaviour
         if (collision.gameObject.CompareTag("Car"))
         {
             Debug.Log("Pedestrian was hit!");
-
+            // crashSound.Play();
             hasBeenHit = true;
             shouldWalk = false;
             animator.enabled = false;
@@ -59,6 +64,24 @@ public class PedestrianController : MonoBehaviour
             forceDir.y = 0.3f; // Less upward force for realism
             rb.AddForce(forceDir * 500f, ForceMode.Impulse); // Reduced magnitude for controlled fall
         }
+    }
+    public void ResetPedestrian()
+    {
+        // Reset transform
+        transform.position = startPosition;
+        transform.rotation = startRotation;
+
+        // Reset animator and rigidbody
+        rb.isKinematic = true;
+        // rb.velocity = Vector3.zero;
+        // rb.angularVelocity = Vector3.zero;
+        animator.enabled = true;
+        animator.Rebind(); // Reset animator to default pose
+        animator.Update(0f);
+
+        // Reset state flags
+        hasBeenHit = false;
+        shouldWalk = false;
     }
 
 }
